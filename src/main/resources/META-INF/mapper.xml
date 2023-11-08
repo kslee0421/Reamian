@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="reamianDB">
+
+<update id="reserve_modify_update" parameterType="map">
+	update reserve set rday =#{rday}, rtime = #{rtime}, rnum = #{rnum}, rmodi = #{rmodi} where rid = #{rid}
+</update>
+
+<delete id="reserve_delete" >
+	delete from reserve where rid = #{rid}
+</delete>
+
+<select id="reserve_mainlist" resultType="reservo">
+select * from reserve 
+<choose>
+	<when test="part == null">
+		order by ridx desc limit #{page},10
+	</when>
+	<when test="part == 'rname'">
+		where rname like concat('%',#{data},'%') order by ridx desc limit #{page},10
+	</when>
+	<when test="part == 'rid'">
+		where rid like concat('%',#{data},'%') order by ridx desc limit #{page},10
+	</when>
+	<when test="part == 'rtel'">
+		where rtel like concat('%',#{data},'%') order by ridx desc limit #{page},10
+	</when>
+</choose>
+</select>
+
+<update id="reserve_member_update" parameterType="Map">
+	update member set mres = #{mres} where mid = #{mid}
+</update>
+
+<select id="reserve_view" parameterType="Map" resultType="Reservo">  <!-- Map으로 넘어오므로 parameter를 Map으로 -->
+select * from reserve where rid = #{rid}
+</select>
+
+<insert id="reserve_insert">
+insert into reserve values ('0',#{rid},#{rname},#{rday},#{rtime},#{rtel},#{rnum},'N',now())
+</insert>
+
+<select id="login_member_cnt" parameterType="Map" resultType="String">
+select count(*) as check1 from member where mid = #{userid} and mpw =password(#{userpw})  
+</select>
+
+<select id="login_member" parameterType="Map" resultType="Membervo">
+select * from member where mid = #{userid} and mpw =password(#{userpw}) 
+</select>
+
+<select id="login_member_reserve" parameterType="Map" resultType="Reservo">
+select * from reserve where rid = #{userid} 
+</select>
+
+<delete id="member_delete">
+	delete from member where midx = #{a}
+</delete>
+
+<select id="member_select" parameterType="Map" resultType="Membervo">
+select * from member where mid = #{mid} 
+</select>
+
+<select id="reserve_select" parameterType="Map" resultType="Reservo">
+select * from reserve where rid = #{mid} 
+</select>
+
+
+<select id="memberlist" parameterType="Map" resultType="Membervo">
+select * from member 
+<choose>
+	<when test="part == null">
+		order by midx desc limit #{page},15
+	</when>
+	<when test="part == 'mname'">
+		where mname like concat('%',#{data},'%') order by midx desc limit #{page},15
+	</when>
+	<when test="part == 'mid'">
+		where mid like concat('%',#{data},'%') order by midx desc limit #{page},15
+	</when>
+	<when test="part == 'mtel'">
+		where mtel like concat('%',#{data},'%') order by midx desc limit #{page},15
+	</when>
+</choose>
+</select>
+
+<select id="memberlist_main" resultType="Membervo">
+select * from member order by midx desc limit 0,5
+</select>
+
+<select id="faqlist_main" resultType="Faqvo">
+select * from faq order by fidx desc limit 0,5
+</select>
+
+<select id="reservelist_main" resultType="Reservo">
+select * from reserve order by ridx desc limit 0,5
+</select>
+
+<select id="countcheck" parameterType="Map" resultType="String">
+select count(*) as check1 from member where mid = #{userid}  
+</select>
+
+<select id="admin_countcheck" parameterType="Map" resultType="String">
+select count(*) as check1 from admin_member where mid = #{userid}  
+</select>
+
+<insert id="member_insert">
+insert into member values ('0',#{mname},#{mid},password(#{mpw}),#{mtel},#{memail},#{madd},#{mch1},#{mch2},#{mch3},#{mch4},'Y','N',now())
+</insert>
+
+<delete id="info_delete">
+	delete from info where idx = #{a}
+</delete>
+
+<select id="infolist" parameterType="Map" resultType="Infovo">
+select * from info
+<choose>
+	<when test="part == null and data ==null">
+	order by idx desc limit #{page},10
+	</when>
+	<when test="part == 'iparea'">
+	where iparea like concat('%',#{data},'%') order by iorder asc limit #{page},10
+	</when>
+</choose>
+</select>
+
+<insert id="info_insert">
+insert into info values ('0',#{itype},#{iwriter},#{iparea},#{icarea},#{ietarea},#{icnarea},#{iurl},#{iuse},#{iorder},now())
+</insert>
+
+<delete id="faq_delete">
+	delete from faq where fidx = #{a}
+</delete>
+
+<insert id="faq_insert">
+insert into faq values ('0',#{fquestion},#{fanswer},#{fwriter},'Y',now())
+</insert>
+
+<select id="selectview" parameterType="Map" resultType="Noticevo">  <!-- Map으로 넘어오므로 parameter를 Map으로 -->
+select * from 
+<choose>
+	<when test="table ='notice'">notice
+		<if test="part == 'nidx_search'">
+			where nidx = #{nidx}
+		</if>
+		<if test= "part == null and data ==null">
+		</if>
+	</when>
+</choose> 
+</select>
+
+<update id="notice_count">
+	update notice set mres = #{mres} where nidx = #{nidx}
+</update>
+
+<!-- delete -->
+<delete id="notice_delete">
+	delete from notice where nidx = #{a}
+</delete>
+
+<!-- counting -->
+<select id="count" parameterType="Map" resultType="String">  <!-- Map으로 넘어오므로 parameter를 Map으로 -->
+select count(*) as ncount from 
+<choose>
+	<when test="table == 'member'">member
+		<if test= "part == null and data ==null">
+		</if>
+		<if test="part == 'mname'">
+			where mname like concat('%',#{data},'%')
+		</if>
+		<if test="part == 'mid'">
+			where mid like concat('%',#{data},'%')
+		</if>
+		<if test="part == 'mtel'">
+			where mtel like concat('%',#{data},'%')
+		</if>
+	</when>
+	<when test="table == 'info'">info
+		<if test="part == null and data ==null">
+		</if>
+		<if test="part == 'icarea'">
+			where icarea like concat('%',#{data},'%')
+		</if>
+	</when>
+	<when test="table == 'faq'">faq
+		<if test="part == null and data ==null">
+		</if>
+		<if test="part == 'fanswer'">
+			where fanswer like concat('%',#{data},'%')
+		</if>
+	</when>
+	<when test="table == 'notice'">notice
+		<if test= "part == null and data ==null">
+		</if>
+		<if test="part == 'nsubject'">
+			where nsubject like concat('%',#{data},'%')
+		</if>
+	</when>
+	<when test="table == 'admin_member'">admin_member
+		<if test= "part == null and data ==null">
+		</if>
+		<if test="part == 'mname'">
+			where mname like concat('%',#{data},'%')
+		</if>
+		<if test="part == 'mid'">
+			where mid like concat('%',#{data},'%')
+		</if>
+		<if test="part == 'mtel'">
+			where mtel like concat('%',#{data},'%')
+		</if>
+		<if test="part == 'marea'">
+			where marea like concat('%',#{data},'%')
+		</if>
+	</when>
+		<when test="table == 'member'">member
+		<if test= "part == null and data ==null">
+		</if>
+		<if test="part == 'mid'">
+			where mid=#{data}
+		</if>
+	</when>
+		<when test="table == 'reserve'">reserve
+		<if test= "part == null and data ==null">
+		</if>
+		<if test="part == 'rname'">
+			where rname like concat('%',#{data},'%')
+		</if>
+		<if test="part == 'rid'">
+			where rid like concat('%',#{data},'%')
+		</if>
+		<if test="part == 'rtel'">
+			where rtel like concat('%',#{data},'%')
+		</if>
+	</when>
+</choose> 
+</select>
+
+<update id="notice_count_update" parameterType="Map">
+	update notice set ncount = ncount+1 where nidx = #{nidx}
+</update>
+
+<select id="faqlist" parameterType="Map" resultType="Faqvo">
+select * from faq
+<choose>
+	<when test="part == null and data ==null">
+	order by fidx desc limit #{page},10
+	</when>
+	<when test="part == 'fanswer'">
+	where fanswer like concat('%',#{data},'%') order by fidx desc limit #{page},10
+	</when>
+</choose>
+</select>
+
+
+<select id="noticelist" parameterType="Map" resultType="Noticevo">
+select * from notice
+<choose>
+		<when test="part == null and data ==null">
+		order by nidx desc limit #{page},10
+		</when>
+		<when test="part == 'nsubject'">
+		where nsubject like concat('%',#{data},'%') order by nidx desc limit #{page},10
+		</when>
+</choose>
+</select>
+
+<select id="admin_memberlist" parameterType="Map" resultType="datavo">
+select * from admin_member 
+<choose>
+	<when test="part == null">
+		order by midx desc limit #{page},10
+	</when>
+	<when test="part == 'mname'">
+		where mname like concat('%',#{data},'%') order by midx desc limit #{page},10
+	</when>
+	<when test="part == 'mid'">
+		where mid like concat('%',#{data},'%') order by midx desc limit #{page},10
+	</when>
+	<when test="part == 'mtel'">
+		where mtel like concat('%',#{data},'%') order by midx desc limit #{page},10
+	</when>
+	<when test="part == 'marea'">
+		where marea like concat('%',#{data},'%') order by midx desc limit #{page},10
+	</when>
+</choose>
+</select>
+
+
+<!-- <<<<<<공지사항 작성페이지>>>>>> -->
+<!--  공지사항 등록 -->
+<insert id="notice_insert">
+insert into notice values ('0',#{nsubject},#{ncontents},#{nwriter},#{nfile},'0','Y',now())
+</insert>
+
+<!-- 공지사항 리스트 -->
+<select id="notice_list" parameterType="Map" resultType="Noticevo">
+select * from notice
+	<!-- if 또는 when 사용시 문자열 일 경우 '' 또는 ""로 구분해서 사용 필수  when안에 when은 안됨 when안에 if는 됨-->
+	<where>
+		<if test= "data != null"> <!-- 전화번호 검색 -->
+			nsubject like concat('%',#{search})
+		</if>
+	</where>
+order by nidx desc
+</select>  <!-- parameterMap="" : 넘어오는 controller class 자체가 Map일때 -->
+
+<!-- 일반 검색 -->
+<select id="selectsearch" parameterType="Datavo"> <!-- int의 숫자를 받아와서 그결과를 resultType="Datavo"에 출력-->
+select * from member where #{search} like concat('%',#{text},'%') order by midx desc
+</select>
+
+<select id="searchcounting" parameterType="Datavo" resultType="String">
+select count(*) as scnt from member where #{search} like concat('%',#{text},'%')
+</select>
+
+<!-- <<<<<<관리자 현황 페이지>>>>>> -->
+<!-- 관리자 목록 출력 -->
+<select id="selectall" parameterType="int" resultType="Datavo"> <!-- int의 숫자를 받아와서 그결과를 resultType="Datavo"에 출력-->
+select * from member order by midx desc limit #{z},10
+</select>
+<!-- 갯수 카운팅 -->
+<select id="counting" parameterType="String" resultType="String">
+select count(*) as mcnt from member
+</select>
+<!-- 현황 업데이트 -->
+<select id="selectone" parameterType="String" resultType="Datavo">
+	select * from member where midx = #{midx}
+</select>
+
+
+
+<update id="config_update" >
+	update admin_member set mstatus = #{mstatus}, mdate = now() where midx = #{midx}
+</update>
+
+<!-- <<<<<<로그인 페이지>>>>>> -->
+<select id="login_admin_cnt" parameterType="Map" resultType="String">
+select count(*) as check1 from admin_member where mid = #{userid} and mpw = password(#{userpw})  
+</select>
+
+<select id="login_admin_idcnt" parameterType="Map" resultType="String">
+select count(*) as check2 from admin_member where mid = #{userid}  
+</select>
+
+<select id="login_admin" parameterType="Map" resultType="Datavo">
+select * from admin_member where mid = #{userid} and mpw = password(#{userpw} )  
+</select>
+
+<select id="login_admin_ncount" parameterType="Map" resultType="Datavo">
+select * from admin_member where mid = #{userid}  
+</select>
+
+<update id="login_count_update" parameterType="Map" >
+	update admin_member set mlogcnt = mlogcnt+1 where mid = #{userid}
+</update>
+
+<update id="login_count_update_set" parameterType="Map" >
+	update admin_member set mlogcnt = 0 where mid = #{userid}
+</update>
+
+<!-- <<<<<<회원가입 페이지>>>>>> -->
+<!-- 회원가입 -->
+<insert id="admin_member_insert">
+insert into admin_member values ('0',#{marea},#{mdept},#{mname},#{mgrade},#{mid},password(#{mpw}),#{memail},#{mtel},'근무중','Y','0',now())
+</insert>
+<!-- 아이디 중복확인 -->
+<select id="search_id" parameterType="String" resultType="datavo">
+select mid,memail from member where mid=#{value} 
+</select>
+
+</mapper>
